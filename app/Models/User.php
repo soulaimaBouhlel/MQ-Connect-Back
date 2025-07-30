@@ -71,5 +71,43 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_id');
     }
+    // Ratings given by this user (Reviewer)
+    public function ratingsGiven()
+    {
+        return $this->hasMany(Rating::class, 'reviewer_id');
+    }
 
+    // Ratings received by this user (Reviewee)
+    public function ratingsReceived()
+    {
+        return $this->hasMany(Rating::class, 'reviewee_id');
+    }
+
+    // Boosts by this user
+    public function boosts()
+    {
+        return $this->hasMany(Boost::class, 'user_id');
+    }
+
+    // Followers (users who follow this user)
+    public function followers()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows',
+            'followed_id',
+            'follower_id'
+        );
+    }
+
+    // Followings (users this user follows)
+    public function followings()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'follows',
+            'follower_id',
+            'followed_id'
+        );
+    }
 }
