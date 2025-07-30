@@ -19,6 +19,10 @@ class Offer extends Model
         'niche',
         'status',
     ];
+    protected $casts = [
+        'price' => 'decimal:2',
+        'budget' => 'decimal:2',
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -31,6 +35,6 @@ class Offer extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(Tag::class, 'offer_tag');
+        return $this->belongsToMany(Tag::class, 'offer_tag', 'offer_id', 'tag_id');
     }
 }
