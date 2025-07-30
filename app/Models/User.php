@@ -9,8 +9,70 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @OA\Schema(
+ *     title="User",
+ *     description="User model",
+ *     @OA\Xml(name="User")
+ * )
+ */
 class User extends Authenticatable
 {
+    /**
+     * @OA\Property(
+     *     title="ID",
+     *     description="ID",
+     *     format="int64",
+     *     example=1
+     * )
+     * @var integer
+     */
+    public $id;
+
+    /**
+     * @OA\Property(
+     *     title="Name",
+     *     description="User's name",
+     *     example="John Doe"
+     * )
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @OA\Property(
+     *     title="Email",
+     *     description="User's email",
+     *     format="email",
+     *     example="john@example.com"
+     * )
+     * @var string
+     */
+    public $email;
+
+    /**
+     * @OA\Property(
+     *     title="Created at",
+     *     description="Created at",
+     *     example="2023-01-01 12:00:00",
+     *     format="datetime",
+     *     type="string"
+     * )
+     * @var \DateTime
+     */
+    public $created_at;
+
+    /**
+     * @OA\Property(
+     *     title="Updated at",
+     *     description="Updated at",
+     *     example="2023-01-01 12:00:00",
+     *     format="datetime",
+     *     type="string"
+     * )
+     * @var \DateTime
+     */
+    public $updated_at;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
