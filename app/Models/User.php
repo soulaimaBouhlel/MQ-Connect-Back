@@ -11,69 +11,30 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @OA\Schema(
+ *     schema="User",
  *     title="User",
  *     description="User model",
- *     @OA\Xml(name="User")
+ *     required={"id", "name", "email", "role"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Soulaima Bouhlel"),
+ *     @OA\Property(property="email", type="string", format="email", example="soulaima@example.com"),
+ *     @OA\Property(property="email_verified_at", type="string", format="date-time", nullable=true, example="2023-01-01T12:00:00Z"),
+ *     @OA\Property(property="role", type="string", enum={"publisher", "influencer"}, example="publisher"),
+ *     @OA\Property(property="verified", type="boolean", example=true),
+ *     @OA\Property(property="bio", type="string", example="Marketing expert and growth strategist."),
+ *     @OA\Property(property="location", type="string", example="Sfax, Tunisia"),
+ *     @OA\Property(property="company", type="string", nullable=true, example="MQ-Connect"),
+ *     @OA\Property(property="position", type="string", nullable=true, example="Founder & CEO"),
+ *     @OA\Property(property="profile_photo", type="string", nullable=true, example="https://example.com/images/avatar.jpg"),
+ *     @OA\Property(property="cover_photo", type="string", nullable=true, example="https://example.com/images/cover.jpg"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2023-01-01T12:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-01T12:00:00Z")
  * )
  */
+
 class User extends Authenticatable
 {
-    /**
-     * @OA\Property(
-     *     title="ID",
-     *     description="ID",
-     *     format="int64",
-     *     example=1
-     * )
-     * @var integer
-     */
-    public $id;
 
-    /**
-     * @OA\Property(
-     *     title="Name",
-     *     description="User's name",
-     *     example="John Doe"
-     * )
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @OA\Property(
-     *     title="Email",
-     *     description="User's email",
-     *     format="email",
-     *     example="john@example.com"
-     * )
-     * @var string
-     */
-    public $email;
-
-    /**
-     * @OA\Property(
-     *     title="Created at",
-     *     description="Created at",
-     *     example="2023-01-01 12:00:00",
-     *     format="datetime",
-     *     type="string"
-     * )
-     * @var \DateTime
-     */
-    public $created_at;
-
-    /**
-     * @OA\Property(
-     *     title="Updated at",
-     *     description="Updated at",
-     *     example="2023-01-01 12:00:00",
-     *     format="datetime",
-     *     type="string"
-     * )
-     * @var \DateTime
-     */
-    public $updated_at;
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
 
     /**

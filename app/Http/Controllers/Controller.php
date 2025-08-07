@@ -11,7 +11,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
  *     version="1.0.0",
  *     description="API documentation for social media platform with users, posts, ratings, and messaging",
  *     @OA\Contact(
- *         email="support@yourapp.com"
+ *         email="support@connect.com"
  *     )
  * )
  * @OA\Server(
