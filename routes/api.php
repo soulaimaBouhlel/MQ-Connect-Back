@@ -14,6 +14,9 @@ Route::middleware([
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/profile', [UserController::class, 'profile']);
+
 });
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
