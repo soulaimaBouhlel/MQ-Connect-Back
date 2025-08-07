@@ -52,7 +52,10 @@ class User extends Authenticatable
         'location',
         'profile_photo',
         'cover_photo',
+        'company',
+        'position',
     ];
+
 
     protected $hidden = [
         'password',

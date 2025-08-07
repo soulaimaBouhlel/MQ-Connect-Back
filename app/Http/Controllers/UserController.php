@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
 
 /**
  * @OA\Tag(name="Users", description="User management")
  */
-
 class UserController extends Controller
 {
     /**
@@ -27,10 +28,22 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function index(Request $request): JsonResponse
+
+    public function index(): JsonResponse
     {
-        $users = User::paginate(15);
-        return response()->json($users);
+        try {
+            $users = User::all();
+            return response()->json([
+                'success' => true,
+                'users' => $users
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while fetching users.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -40,21 +53,30 @@ class UserController extends Controller
      *     summary="Get user by ID",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(
-     *         response=200,
-     *         description="User details",
-     *         @OA\JsonContent(ref="#/components/schemas/User")
-     *     ),
+     *     @OA\Response(response=200, description="User details", @OA\JsonContent(ref="#/components/schemas/User")),
      *     @OA\Response(response=404, description="User not found")
      * )
      */
     public function show($id): JsonResponse
     {
-        $user = User::find($id);
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
+        try {
+            $user = User::findOrFail($id);
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while fetching the user.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-        return response()->json($user);
     }
 
     /**
@@ -115,10 +137,10 @@ class UserController extends Controller
             ]);
 
             DB::commit();
-
             return response()->json(['message' => 'User created', 'user' => $user], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('User creation failed: ' . $e->getMessage());
             return response()->json(['error' => 'User creation failed'], 500);
         }
     }
@@ -153,6 +175,11 @@ class UserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
+        // Restrict update to the user themself or admin
+        if (auth()->id() !== $user->id && auth()->user()->role !== 'admin') {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'bio' => 'nullable|string',
@@ -179,6 +206,7 @@ class UserController extends Controller
             return response()->json(['message' => 'User updated', 'user' => $user]);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('User update failed: ' . $e->getMessage());
             return response()->json(['error' => 'Update failed'], 500);
         }
     }
@@ -201,6 +229,11 @@ class UserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
+        // Only self or admin can delete
+        if (auth()->id() !== $user->id ) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
         DB::beginTransaction();
         try {
             $user->delete();
@@ -208,7 +241,40 @@ class UserController extends Controller
             return response()->json(['message' => 'User deleted']);
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('User delete failed: ' . $e->getMessage());
             return response()->json(['error' => 'Delete failed'], 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/profile",
+     *     tags={"Users"},
+     *     summary="Get authenticated user's profile",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="User profile", @OA\JsonContent(ref="#/components/schemas/User"))
+     * )
+     */
+    public function profile(): JsonResponse
+    {
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authenticated user not found.'
+                ], 404);
+            }
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while fetching the profile.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 }
