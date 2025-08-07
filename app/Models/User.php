@@ -9,9 +9,32 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     title="User",
+ *     description="User model",
+ *     required={"id", "name", "email", "role"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Soulaima Bouhlel"),
+ *     @OA\Property(property="email", type="string", format="email", example="soulaima@example.com"),
+ *     @OA\Property(property="email_verified_at", type="string", format="date-time", nullable=true, example="2023-01-01T12:00:00Z"),
+ *     @OA\Property(property="role", type="string", enum={"publisher", "influencer"}, example="publisher"),
+ *     @OA\Property(property="verified", type="boolean", example=true),
+ *     @OA\Property(property="bio", type="string", example="Marketing expert and growth strategist."),
+ *     @OA\Property(property="location", type="string", example="Sfax, Tunisia"),
+ *     @OA\Property(property="company", type="string", nullable=true, example="MQ-Connect"),
+ *     @OA\Property(property="position", type="string", nullable=true, example="Founder & CEO"),
+ *     @OA\Property(property="profile_photo", type="string", nullable=true, example="https://example.com/images/avatar.jpg"),
+ *     @OA\Property(property="cover_photo", type="string", nullable=true, example="https://example.com/images/cover.jpg"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2023-01-01T12:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2023-01-01T12:00:00Z")
+ * )
+ */
+
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
