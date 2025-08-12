@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -48,34 +49,29 @@ class UserController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/users/{id}",
+     *     path="/api/users/{id}",
+     *     summary="Get a user by ID with portfolio",
      *     tags={"Users"},
-     *     summary="Get user by ID",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="User details", @OA\JsonContent(ref="#/components/schemas/User")),
+     *     security={{"sanctum": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="User found with portfolio"),
      *     @OA\Response(response=404, description="User not found")
      * )
      */
-    public function show($id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         try {
-            $user = User::findOrFail($id);
-            return response()->json([
-                'success' => true,
-                'user' => $user
-            ], 200);
+            $user = User::with(['portfolioItems.mediaItems'])->findOrFail($id);
+            return response()->json(['user' => $user], 200);
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found.'
-            ], 404);
+            return response()->json(['error' => 'User not found'], 404);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching the user.',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
 
@@ -245,36 +241,27 @@ class UserController extends Controller
             return response()->json(['error' => 'Delete failed'], 500);
         }
     }
-
     /**
      * @OA\Get(
-     *     path="/profile",
+     *     path="/api/profile",
+     *     summary="Get the authenticated user's profile with portfolio",
      *     tags={"Users"},
-     *     summary="Get authenticated user's profile",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="User profile", @OA\JsonContent(ref="#/components/schemas/User"))
+     *     security={{"sanctum": {}}},
+     *     @OA\Response(response=200, description="Profile data with portfolio items"),
+     *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
     public function profile(): JsonResponse
     {
         try {
-            $user = auth()->user();
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Authenticated user not found.'
-                ], 404);
-            }
-            return response()->json([
-                'success' => true,
-                'user' => $user
-            ], 200);
+            $user = Auth::user()->load([
+                'portfolioItems.mediaItems'
+            ]);
+
+            return response()->json(['user' => $user], 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while fetching the profile.',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
+
 }

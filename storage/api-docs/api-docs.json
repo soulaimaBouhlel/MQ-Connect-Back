@@ -134,6 +134,420 @@
                 ]
             }
         },
+        "/api/media/portfolio/{portfolio_item_id}": {
+            "get": {
+                "tags": [
+                    "Media Items"
+                ],
+                "summary": "Get all media items for a specific portfolio item",
+                "operationId": "2f460b74db4f50f5c301f0aba4d472be",
+                "parameters": [
+                    {
+                        "name": "portfolio_item_id",
+                        "in": "path",
+                        "description": "ID of the portfolio item",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of media items"
+                    },
+                    "404": {
+                        "description": "Portfolio item not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/media": {
+            "post": {
+                "tags": [
+                    "Media Items"
+                ],
+                "summary": "Create a new media item for a portfolio item",
+                "operationId": "9a39ea4ca092017914080d287b9d8056",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "portfolio_item_id",
+                                    "file_path"
+                                ],
+                                "properties": {
+                                    "portfolio_item_id": {
+                                        "description": "ID of the portfolio item",
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "file_path": {
+                                        "description": "Relative path to the media file",
+                                        "type": "string",
+                                        "example": "uploads/images/project1.jpg"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Media item created successfully"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Portfolio item not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/media/{id}": {
+            "get": {
+                "tags": [
+                    "Media Items"
+                ],
+                "summary": "Get a media item by ID",
+                "operationId": "b068e8c0f3a24f64101f5c159eced7f5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Media item details"
+                    },
+                    "404": {
+                        "description": "Media item not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Media Items"
+                ],
+                "summary": "Update a media item",
+                "operationId": "9e65d0f3183dd480b833c7d6d6196e21",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "file_path": {
+                                        "type": "string",
+                                        "example": "uploads/videos/demo.mp4"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Media item updated successfully"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "404": {
+                        "description": "Media item not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Media Items"
+                ],
+                "summary": "Delete a media item",
+                "operationId": "9c8aaf98e641f226b49abaabdebf978e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Media item deleted successfully"
+                    },
+                    "404": {
+                        "description": "Media item not found"
+                    }
+                }
+            }
+        },
+        "/api/portfolio": {
+            "get": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Get all portfolio items",
+                "operationId": "e117dcbbaa97e77b086c3006f9c5cd64",
+                "responses": {
+                    "200": {
+                        "description": "List of portfolio items"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Create a new portfolio item",
+                "operationId": "b4fc99a52c47b735cef7ec7e021c6b39",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "user_id",
+                                    "type",
+                                    "title"
+                                ],
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "media",
+                                            "collaboration"
+                                        ]
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "publisher_id": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Portfolio item created"
+                    }
+                }
+            }
+        },
+        "/api/portfolio/{id}": {
+            "get": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Get a portfolio item by ID",
+                "operationId": "a73452a66d1d9bab10550bb7a67210c9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Portfolio item details"
+                    },
+                    "404": {
+                        "description": "Portfolio item not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Update a portfolio item",
+                "operationId": "23b5cab8ef60a6dfd1e5ceba630564dd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "media",
+                                            "collaboration"
+                                        ]
+                                    },
+                                    "title": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "publisher_id": {
+                                        "type": "integer",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Portfolio item updated"
+                    },
+                    "404": {
+                        "description": "Portfolio item not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Delete a portfolio item",
+                "operationId": "b6d409a08c8cde256fedd0229d01f7fe",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Portfolio item ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Portfolio item deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Portfolio item not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Portfolio item not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Failed to delete portfolio item"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/{id}/portfolio": {
+            "get": {
+                "tags": [
+                    "Portfolio Items"
+                ],
+                "summary": "Get all portfolio items for a user",
+                "operationId": "da070386f933eeec696d40c990779a15",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User's portfolio items (can be empty array)"
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
@@ -236,13 +650,13 @@
                 ]
             }
         },
-        "/users/{id}": {
+        "/api/users/{id}": {
             "get": {
                 "tags": [
                     "Users"
                 ],
-                "summary": "Get user by ID",
-                "operationId": "910a0c7cf580e1c605648d82a4e57f46",
+                "summary": "Get a user by ID with portfolio",
+                "operationId": "36a33ff774d5cba33c039dec2c3e0287",
                 "parameters": [
                     {
                         "name": "id",
@@ -255,14 +669,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User details",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
+                        "description": "User found with portfolio"
                     },
                     "404": {
                         "description": "User not found"
@@ -270,10 +677,12 @@
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
-            },
+            }
+        },
+        "/users/{id}": {
             "put": {
                 "tags": [
                     "Users"
@@ -368,28 +777,24 @@
                 ]
             }
         },
-        "/profile": {
+        "/api/profile": {
             "get": {
                 "tags": [
                     "Users"
                 ],
-                "summary": "Get authenticated user's profile",
-                "operationId": "5c70147817a3dafeb6b1e7c63e203874",
+                "summary": "Get the authenticated user's profile with portfolio",
+                "operationId": "4373251f8140344279ac32a1ac817cef",
                 "responses": {
                     "200": {
-                        "description": "User profile",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/User"
-                                }
-                            }
-                        }
+                        "description": "Profile data with portfolio items"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
                     }
                 },
                 "security": [
                     {
-                        "bearerAuth": []
+                        "sanctum": []
                     }
                 ]
             }
@@ -397,6 +802,49 @@
     },
     "components": {
         "schemas": {
+            "MediaItem": {
+                "title": "Media Item",
+                "required": [
+                    "title",
+                    "url",
+                    "type",
+                    "portfolio_item_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "UI Design Sample"
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://example.com/media.png"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "image"
+                    },
+                    "portfolio_item_id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-08T12:34:56Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-08T12:34:56Z"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User",
                 "description": "User model",
@@ -495,6 +943,14 @@
         {
             "name": "Authentication",
             "description": "User authentication"
+        },
+        {
+            "name": "Media Items",
+            "description": "API Endpoints for managing media files linked to portfolio items"
+        },
+        {
+            "name": "Portfolio Items",
+            "description": "API Endpoints for managing portfolio items"
         },
         {
             "name": "Users",
