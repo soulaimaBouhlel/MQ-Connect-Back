@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\OfferController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -45,6 +46,27 @@ Route::middleware([
         Route::put('/offers/{id}', [OfferController::class, 'update']);
         Route::delete('/offers/{id}', [OfferController::class, 'destroy']);
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Offers Routes (Influencer Only)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware('role:influencer')->group(function () {
+        Route::post('/applications', [ApplicationController::class, 'store']);
+        Route::put('/applications/{id}', [ApplicationController::class, 'update']);
+        Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
+    });
+    /*
+   |--------------------------------------------------------------------------
+   | Applications View Routes (Restricted to Related Users)
+   |--------------------------------------------------------------------------
+   */
+    Route::get('/applications', [ApplicationController::class, 'index']);
+    Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+    Route::get('/applications/user/{userId}', [ApplicationController::class, 'getByUser']);
+    Route::get('/applications/offer/{offerId}', [ApplicationController::class, 'getByOffer']);
+
 });
 
 /*

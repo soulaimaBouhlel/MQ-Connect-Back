@@ -15,6 +15,303 @@
         }
     ],
     "paths": {
+        "/api/applications": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get all applications (restricted access)",
+                "operationId": "5bdb0276efb6e85e52a842b69a9c6601",
+                "responses": {
+                    "200": {
+                        "description": "List of applications"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Create a new application for an offer",
+                "operationId": "838ab9ccbecd19fc861d7a1e17c865ba",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "offer_id",
+                                    "pricing_type"
+                                ],
+                                "properties": {
+                                    "offer_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "pricing_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed",
+                                            "commission",
+                                            "cost-per-post"
+                                        ],
+                                        "example": "fixed"
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Promote brand awareness"
+                                    },
+                                    "budget": {
+                                        "type": "string",
+                                        "example": "500"
+                                    },
+                                    "criteria": {
+                                        "type": "string",
+                                        "example": "At least 5k followers"
+                                    },
+                                    "niche": {
+                                        "type": "string",
+                                        "example": "Fashion"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Application created successfully"
+                    },
+                    "400": {
+                        "description": "Validation or business logic error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/{id}": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get a single application by ID (restricted access)",
+                "operationId": "063830ab6918716412802601f8384a05",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Application ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Application retrieved successfully"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Application not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Update an application (only owner)",
+                "operationId": "0794c698e89bca15fb63f540db6b9d98",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "pricing_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed",
+                                            "commission",
+                                            "cost-per-post"
+                                        ],
+                                        "example": "commission"
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Increase engagement"
+                                    },
+                                    "budget": {
+                                        "type": "string",
+                                        "example": "300"
+                                    },
+                                    "criteria": {
+                                        "type": "string",
+                                        "example": "Beauty niche influencers"
+                                    },
+                                    "niche": {
+                                        "type": "string",
+                                        "example": "Beauty"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Application updated"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not owner"
+                    },
+                    "404": {
+                        "description": "Application not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Delete an application (only owner)",
+                "operationId": "528c6aed37725fba247b8441d8f3f9b6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Application deleted"
+                    },
+                    "403": {
+                        "description": "Forbidden - Not owner"
+                    },
+                    "404": {
+                        "description": "Application not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/user/{userId}": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get all applications by a specific user (restricted access)",
+                "operationId": "2aaa48fd150ecd4e769d8c6b72af86c3",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "User ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of applications by the user"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/applications/offer/{offerId}": {
+            "get": {
+                "tags": [
+                    "Applications"
+                ],
+                "summary": "Get all applications for a specific offer (restricted access)",
+                "operationId": "49101941d346f4b6f0669bc60d65805c",
+                "parameters": [
+                    {
+                        "name": "offerId",
+                        "in": "path",
+                        "description": "Offer ID",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of applications for the offer"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/register": {
             "post": {
                 "tags": [
@@ -1315,6 +1612,10 @@
         {
             "name": "Users",
             "description": "User management"
+        },
+        {
+            "name": "Applications",
+            "description": "Applications"
         },
         {
             "name": "Offers",
