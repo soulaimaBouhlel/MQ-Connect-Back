@@ -310,6 +310,322 @@
                 }
             }
         },
+        "/api/offers": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "List all offers",
+                "operationId": "3a56496f000faffd87f42c4036770f0e",
+                "responses": {
+                    "200": {
+                        "description": "List of offers"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Create a new offer",
+                "operationId": "4b4cc5dac461b7ed0b8d56a8a2ce22d2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Instagram Campaign"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Promote our new product"
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Increase brand awareness"
+                                    },
+                                    "budget": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1500
+                                    },
+                                    "criteria": {
+                                        "type": "string",
+                                        "example": "At least 10k followers"
+                                    },
+                                    "niche": {
+                                        "type": "string",
+                                        "example": "Fashion"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "open"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Offer created successfully"
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                }
+            }
+        },
+        "/api/offers/{id}": {
+            "get": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Get a specific offer",
+                "operationId": "1dbd23184465d2160e3b001e85798a37",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Offer retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Offer not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Update an offer (publisher only)",
+                "description": "Allows a publisher to update their own offer.",
+                "operationId": "updateOffer",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the offer to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Instagram Campaign"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Promote our new product"
+                                    },
+                                    "goals": {
+                                        "type": "string",
+                                        "example": "Increase brand awareness"
+                                    },
+                                    "budget": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 1500
+                                    },
+                                    "criteria": {
+                                        "type": "string",
+                                        "example": "At least 10k followers"
+                                    },
+                                    "niche": {
+                                        "type": "string",
+                                        "example": "Fashion"
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "open"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Offer updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Offer updated successfully"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Offer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized to update this offer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized to update this offer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Offer not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Offer not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Validation error"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Offers"
+                ],
+                "summary": "Delete an offer (publisher only)",
+                "description": "Allows a publisher to delete their own offer.",
+                "operationId": "deleteOffer",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the offer to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Offer deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Offer deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized to delete this offer",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized to delete this offer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Offer not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Offer not found"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/portfolio": {
             "get": {
                 "tags": [
@@ -845,6 +1161,50 @@
                 },
                 "type": "object"
             },
+            "Offer": {
+                "title": "Offer",
+                "required": [
+                    "id",
+                    "title",
+                    "status"
+                ],
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Instagram Campaign"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Promote our new product"
+                    },
+                    "goals": {
+                        "type": "string",
+                        "example": "Increase brand awareness"
+                    },
+                    "budget": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 1500
+                    },
+                    "criteria": {
+                        "type": "string",
+                        "example": "At least 10k followers"
+                    },
+                    "niche": {
+                        "type": "string",
+                        "example": "Fashion"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "open"
+                    }
+                },
+                "type": "object"
+            },
             "User": {
                 "title": "User",
                 "description": "User model",
@@ -955,6 +1315,10 @@
         {
             "name": "Users",
             "description": "User management"
+        },
+        {
+            "name": "Offers",
+            "description": "Offers"
         }
     ]
 }
