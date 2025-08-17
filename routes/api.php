@@ -41,11 +41,25 @@ Route::middleware([
     | Messaging APIs
     |--------------------------------------------------------------------------
     */
+    // Send a new message
     Route::post('/messages/send', [MessageController::class, 'send']);
+
+    // Retrieve conversation with a specific user (marks unread messages as read)
     Route::get('/messages/{userId}', [MessageController::class, 'retrieve']);
+
+    // Mark a single message as read (if needed separately)
     Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']);
+
+    // Mark multiple messages as delivered (typically called by recipient's client)
+    Route::post('/messages/delivered', [MessageController::class, 'markAsDelivered']);
+
+    // Edit a message (sender only)
     Route::put('/messages/{id}', [MessageController::class, 'update']);
+
+    // Delete a message (sender only)
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
+    Route::delete('/messages/conversation/{userId}', [MessageController::class, 'destroyConversation']);
+
     /*
     |--------------------------------------------------------------------------
     | Offers Routes (Publisher Only)

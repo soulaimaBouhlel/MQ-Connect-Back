@@ -643,23 +643,10 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Message sent successfully",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "example": "success"
-                                        },
-                                        "message": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Message sent successfully"
+                    },
+                    "422": {
+                        "description": "Validation error"
                     },
                     "500": {
                         "description": "Server error"
@@ -677,7 +664,7 @@
                 "tags": [
                     "Messages"
                 ],
-                "summary": "Retrieve conversation with a specific user",
+                "summary": "Retrieve conversation with a specific user and mark unread messages as read",
                 "operationId": "3d4768e11d83865f3509a64a578bd63f",
                 "parameters": [
                     {
@@ -692,10 +679,78 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Conversation retrieved successfully"
+                        "description": "Conversation retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "conversation": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "sender_id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "receiver_id": {
+                                                        "type": "integer",
+                                                        "example": 5
+                                                    },
+                                                    "content": {
+                                                        "type": "string",
+                                                        "example": "Hey, how are you?"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "read"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-08-17T18:30:00Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2025-08-17T18:35:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Server error"
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "error"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unable to fetch conversation"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -710,7 +765,7 @@
                 "tags": [
                     "Messages"
                 ],
-                "summary": "Mark a message as read",
+                "summary": "Mark a single message as read",
                 "operationId": "42e15a6796c70cd699eb810186a73508",
                 "parameters": [
                     {
@@ -728,6 +783,9 @@
                     },
                     "404": {
                         "description": "Message not found"
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 },
                 "security": [
@@ -742,7 +800,7 @@
                 "tags": [
                     "Messages"
                 ],
-                "summary": "Edit a message",
+                "summary": "Edit a message (sender only)",
                 "operationId": "a1b0a345721451dac454c4049d504775",
                 "parameters": [
                     {
@@ -774,8 +832,14 @@
                     "200": {
                         "description": "Message updated successfully"
                     },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
                     "404": {
                         "description": "Message not found"
+                    },
+                    "500": {
+                        "description": "Server error"
                     }
                 },
                 "security": [
@@ -788,7 +852,7 @@
                 "tags": [
                     "Messages"
                 ],
-                "summary": "Delete a message",
+                "summary": "Delete a message (sender only)",
                 "operationId": "2077fda8b81cc2fb355890827a1ea31c",
                 "parameters": [
                     {
@@ -804,8 +868,92 @@
                     "200": {
                         "description": "Message deleted successfully"
                     },
+                    "403": {
+                        "description": "Unauthorized"
+                    },
                     "404": {
                         "description": "Message not found"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/delivered": {
+            "post": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Mark messages as delivered",
+                "operationId": "1855db7135bdc84f7a2dbc3d62f453e9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "message_ids"
+                                ],
+                                "properties": {
+                                    "message_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Messages marked as delivered"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/messages/conversation/{userId}": {
+            "delete": {
+                "tags": [
+                    "Messages"
+                ],
+                "summary": "Delete entire conversation with a specific user",
+                "operationId": "20212f2cd44349a690baeb1bd8cc7114",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Conversation deleted successfully"
+                    },
+                    "404": {
+                        "description": "No messages found"
                     }
                 },
                 "security": [
