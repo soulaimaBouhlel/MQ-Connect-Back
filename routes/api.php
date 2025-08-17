@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OfferController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
@@ -35,6 +37,8 @@ Route::middleware([
     Route::put('/media/{id}', [MediaItemController::class, 'update']);
     Route::delete('/media/{id}', [MediaItemController::class, 'destroy']);
 
+    Route::post('/messages/send', [MessageController::class, 'send']);
+    Route::get('/messages/{userId}', [MessageController::class, 'retrieve']);
 
     /*
     |--------------------------------------------------------------------------
@@ -66,8 +70,7 @@ Route::middleware([
     Route::get('/applications/{id}', [ApplicationController::class, 'show']);
     Route::get('/applications/user/{userId}', [ApplicationController::class, 'getByUser']);
     Route::get('/applications/offer/{offerId}', [ApplicationController::class, 'getByOffer']);
-
-});
+Broadcast::routes();});
 
 /*
 |--------------------------------------------------------------------------

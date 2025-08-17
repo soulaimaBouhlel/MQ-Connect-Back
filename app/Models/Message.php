@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
-
+/**
+ * @OA\Schema(
+ *     @OA\Property(property="content", type="string", example="Hello world")
+ * )
+ */
 class Message extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'sender_id',
-        'receiver_id',
-        'content',
-        'read_at',
-    ];
+    protected $fillable = ['sender_id', 'receiver_id', 'content', 'status', 'read_at'];
+
 
     /**
      * Get the sender of the message.
