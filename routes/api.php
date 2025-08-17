@@ -36,10 +36,16 @@ Route::middleware([
     Route::post('/media', [MediaItemController::class, 'store']);
     Route::put('/media/{id}', [MediaItemController::class, 'update']);
     Route::delete('/media/{id}', [MediaItemController::class, 'destroy']);
-
+    /*
+    |--------------------------------------------------------------------------
+    | Messaging APIs
+    |--------------------------------------------------------------------------
+    */
     Route::post('/messages/send', [MessageController::class, 'send']);
     Route::get('/messages/{userId}', [MessageController::class, 'retrieve']);
-
+    Route::patch('/messages/{id}/read', [MessageController::class, 'markAsRead']);
+    Route::put('/messages/{id}', [MessageController::class, 'update']);
+    Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
     /*
     |--------------------------------------------------------------------------
     | Offers Routes (Publisher Only)
