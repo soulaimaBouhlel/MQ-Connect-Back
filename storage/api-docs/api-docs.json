@@ -1517,6 +1517,271 @@
                 }
             }
         },
+        "/api/social-links": {
+            "get": {
+                "tags": [
+                    "Social Links"
+                ],
+                "summary": "Get all social links of the authenticated influencer",
+                "operationId": "8a8b0c532b81f95d8df77326bb3f33d9",
+                "responses": {
+                    "200": {
+                        "description": "List of social links",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "links": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "platform": {
+                                                        "type": "string",
+                                                        "example": "Instagram"
+                                                    },
+                                                    "url": {
+                                                        "type": "string",
+                                                        "example": "https://instagram.com/influencer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Social Links"
+                ],
+                "summary": "Create a new social link",
+                "operationId": "0919df02ae40707390ecd679403747ef",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "platform",
+                                    "url"
+                                ],
+                                "properties": {
+                                    "platform": {
+                                        "type": "string",
+                                        "example": "YouTube"
+                                    },
+                                    "url": {
+                                        "type": "string",
+                                        "example": "https://youtube.com/influencer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Social link created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "link": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "platform": {
+                                                    "type": "string",
+                                                    "example": "YouTube"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "https://youtube.com/influencer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/social-links/{id}": {
+            "put": {
+                "tags": [
+                    "Social Links"
+                ],
+                "summary": "Update a social link",
+                "operationId": "6d5f6ce0f64fc155bc8e4edd62f15442",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the social link to update",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "platform": {
+                                        "type": "string",
+                                        "example": "TikTok"
+                                    },
+                                    "url": {
+                                        "type": "string",
+                                        "example": "https://tiktok.com/@influencer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Social link updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "link": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "platform": {
+                                                    "type": "string",
+                                                    "example": "TikTok"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "https://tiktok.com/@influencer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Social link not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Social Links"
+                ],
+                "summary": "Delete a social link",
+                "operationId": "d75e270d1245498674b6c16e8e154864",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the social link to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Social link deleted successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Social link deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Social link not found"
+                    },
+                    "403": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "tags": [
@@ -1989,6 +2254,10 @@
         {
             "name": "Offers",
             "description": "Offers"
+        },
+        {
+            "name": "Social Links",
+            "description": "Social Links"
         }
     ]
 }

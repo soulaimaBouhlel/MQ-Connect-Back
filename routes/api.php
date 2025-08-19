@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\SocialLinkController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -80,6 +81,8 @@ Route::middleware([
         Route::post('/applications', [ApplicationController::class, 'store']);
         Route::put('/applications/{id}', [ApplicationController::class, 'update']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
+        Route::apiResource('social-links', SocialLinkController::class);
+
     });
     /*
    |--------------------------------------------------------------------------
