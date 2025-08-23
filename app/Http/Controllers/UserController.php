@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MediaItem;
+use App\Models\PortfolioItem;
+use App\Models\SocialLink;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -10,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @OA\Tag(name="Users", description="User management")
@@ -255,7 +260,8 @@ class UserController extends Controller
     {
         try {
             $user = Auth::user()->load([
-                'portfolioItems.mediaItems'
+                'portfolioItems.mediaItems',
+                'socialLinks'
             ]);
 
             return response()->json(['user' => $user], 200);
@@ -263,5 +269,231 @@ class UserController extends Controller
             return response()->json(['error' => 'Something went wrong'], 500);
         }
     }
+    /**
+     * @OA\Put(
+     *     path="/api/profile/update",
+     *     summary="Update user profile",
+     *     description="Update the authenticated user's profile information, including basic details, profile and cover photos, social links, portfolio items, and associated media.",
+     *     tags={"Profile"},
+     *     security={{"sanctum": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="name", type="string", example="Soulaima 2 Bouhlel"),
+     *             @OA\Property(property="email", type="string", example="soulaima12@example.com"),
+     *             @OA\Property(property="profile_photo", type="string", format="binary", example="uploads/images/project1.jpg"),
+     *             @OA\Property(property="cover_photo", type="string", format="binary", example="uploads/images/project1.jpg"),
+     *             @OA\Property(
+     *                 property="portfolio_items",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *                     @OA\Property(property="type", type="string", example="media"),
+     *                     @OA\Property(property="title", type="string", example="Updated Title"),
+     *                     @OA\Property(property="description", type="string", example="Updated Description"),
+     *                     @OA\Property(
+     *                         property="media_items",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="file_path", type="string", example="uploads/images/new-image.jpg")
+     *                         )
+     *                     )
+     *                 )
+     *             ),
+     *             @OA\Property(
+     *                 property="social_links",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="platform", type="string", example="Facebook"),
+     *                     @OA\Property(property="url", type="string", example="https://facebook.com/new-link")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Profile updated successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Profile updated successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Soulaima 2 Bouhlel"),
+     *                 @OA\Property(property="email", type="string", example="soulaima12@example.com"),
+     *                 @OA\Property(property="profile_photo", type="string", example="uploads/images/project1.jpg"),
+     *                 @OA\Property(property="cover_photo", type="string", example="uploads/images/project1.jpg"),
+     *                 @OA\Property(
+     *                     property="portfolio_items",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=5),
+     *                         @OA\Property(property="type", type="string", example="media"),
+     *                         @OA\Property(property="title", type="string", example="Updated Title"),
+     *                         @OA\Property(property="description", type="string", example="Updated Description"),
+     *                         @OA\Property(
+     *                             property="media_items",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 @OA\Property(property="file_path", type="string", example="uploads/images/new-image.jpg")
+     *                             )
+     *                         )
+     *                     )
+     *                 ),
+     *                 @OA\Property(
+     *                     property="social_links",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="platform", type="string", example="Facebook"),
+     *                         @OA\Property(property="url", type="string", example="https://facebook.com/new-link")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid request data",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Invalid data provided")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Unauthorized",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthenticated")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Something went wrong")
+     *         )
+     *     )
+     * )
+     */
+
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        DB::beginTransaction();
+        try {
+            // Validate user data
+            $validated = $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'email' => 'sometimes|email|unique:users,email,' . $user->id,
+                'bio' => 'nullable|string|max:500',
+                'location' => 'nullable|string|max:255',
+                'company' => 'nullable|string|max:255',
+                'position' => 'nullable|string|max:255',
+                'profile_photo' => 'nullable|string',
+                'cover_photo' => 'nullable|string',
+
+                'social_links' => 'nullable|array',
+                'social_links.*.platform' => 'required_with:social_links|string|max:255',
+                'social_links.*.url' => 'required_with:social_links|url|max:500',
+
+                'portfolio_items' => 'nullable|array',
+                'portfolio_items.*.id' => 'nullable|exists:portfolio_items,id',
+                'portfolio_items.*.type' => 'required_with:portfolio_items|in:media,collaboration',
+                'portfolio_items.*.title' => 'required_with:portfolio_items|string|max:255',
+                'portfolio_items.*.description' => 'nullable|string',
+                'portfolio_items.*.media_items' => 'nullable|array',
+                'portfolio_items.*.media_items.*.file_path' => 'required_with:portfolio_items.*.media_items|string'
+            ]);
+
+            // Update basic profile info
+            $user->update($request->only([
+                'name', 'email', 'bio', 'location', 'company', 'position', 'profile_photo', 'cover_photo'
+            ]));
+
+            // Update or create social links
+            if ($request->has('social_links')) {
+                foreach ($request->social_links as $link) {
+                    SocialLink::updateOrCreate(
+                        [
+                            'influencer_id' => $user->id,
+                            'platform' => $link['platform']
+                        ],
+                        [
+                            'url' => $link['url']
+                        ]
+                    );
+                }
+            }
+
+            // Update or create portfolio items and media items
+            if ($request->has('portfolio_items')) {
+                foreach ($request->portfolio_items as $itemData) {
+                    $portfolioItem = PortfolioItem::updateOrCreate(
+                        [
+                            'id' => $itemData['id'] ?? null,
+                            'user_id' => $user->id
+                        ],
+                        [
+                            'type' => $itemData['type'],
+                            'title' => $itemData['title'],
+                            'description' => $itemData['description'] ?? null
+                        ]
+                    );
+
+                    if (!empty($itemData['media_items'])) {
+                        foreach ($itemData['media_items'] as $mediaData) {
+                            MediaItem::updateOrCreate(
+                                [
+                                    'portfolio_item_id' => $portfolioItem->id,
+                                    'file_path' => $mediaData['file_path']
+                                ],
+                                [
+                                    'file_path' => $mediaData['file_path']
+                                ]
+                            );
+                        }
+                    }
+                }
+            }
+
+            DB::commit();
+
+            // Load all updated relations
+            $user->load(['socialLinks', 'portfolioItems.mediaItems']);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ], 200);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Profile update failed',
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+
+
 
 }

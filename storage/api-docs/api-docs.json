@@ -2032,6 +2032,262 @@
                     }
                 ]
             }
+        },
+        "/api/profile/update": {
+            "put": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update user profile",
+                "description": "Update the authenticated user's profile information, including basic details, profile and cover photos, social links, portfolio items, and associated media.",
+                "operationId": "3a7924f4e7a3997bc9b24dad0ee5da2d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Soulaima 2 Bouhlel"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "soulaima12@example.com"
+                                    },
+                                    "profile_photo": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "example": "uploads/images/project1.jpg"
+                                    },
+                                    "cover_photo": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "example": "uploads/images/project1.jpg"
+                                    },
+                                    "portfolio_items": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "type": {
+                                                    "type": "string",
+                                                    "example": "media"
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Updated Title"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "example": "Updated Description"
+                                                },
+                                                "media_items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "file_path": {
+                                                                "type": "string",
+                                                                "example": "uploads/images/new-image.jpg"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "social_links": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "platform": {
+                                                    "type": "string",
+                                                    "example": "Facebook"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "example": "https://facebook.com/new-link"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Profile updated successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Soulaima 2 Bouhlel"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "soulaima12@example.com"
+                                                },
+                                                "profile_photo": {
+                                                    "type": "string",
+                                                    "example": "uploads/images/project1.jpg"
+                                                },
+                                                "cover_photo": {
+                                                    "type": "string",
+                                                    "example": "uploads/images/project1.jpg"
+                                                },
+                                                "portfolio_items": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 5
+                                                            },
+                                                            "type": {
+                                                                "type": "string",
+                                                                "example": "media"
+                                                            },
+                                                            "title": {
+                                                                "type": "string",
+                                                                "example": "Updated Title"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "Updated Description"
+                                                            },
+                                                            "media_items": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "file_path": {
+                                                                            "type": "string",
+                                                                            "example": "uploads/images/new-image.jpg"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "social_links": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "platform": {
+                                                                "type": "string",
+                                                                "example": "Facebook"
+                                                            },
+                                                            "url": {
+                                                                "type": "string",
+                                                                "example": "https://facebook.com/new-link"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Invalid data provided"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Something went wrong"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2258,6 +2514,10 @@
         {
             "name": "Social Links",
             "description": "Social Links"
+        },
+        {
+            "name": "Profile",
+            "description": "Profile"
         }
     ]
 }

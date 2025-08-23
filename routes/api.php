@@ -22,6 +22,7 @@ Route::middleware([
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
+    Route::put('/profile/update', [UserController::class, 'updateProfile']);
 
     // Portfolio Items CRUD
     Route::get('/users/{id}/portfolio', [PortfolioItemController::class, 'getByUser']);
