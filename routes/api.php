@@ -3,6 +3,7 @@
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\SocialLinkController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -21,6 +22,7 @@ Route::middleware([
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/profile', [UserController::class, 'profile']);
+    Route::put('/profile/update', [UserController::class, 'updateProfile']);
 
     // Portfolio Items CRUD
     Route::get('/users/{id}/portfolio', [PortfolioItemController::class, 'getByUser']);
@@ -80,6 +82,8 @@ Route::middleware([
         Route::post('/applications', [ApplicationController::class, 'store']);
         Route::put('/applications/{id}', [ApplicationController::class, 'update']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
+        Route::apiResource('social-links', SocialLinkController::class);
+
     });
     /*
    |--------------------------------------------------------------------------
