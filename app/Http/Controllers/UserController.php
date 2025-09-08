@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -108,43 +109,92 @@ class UserController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => 'required|in:publisher,influencer',
-            'bio' => 'nullable|string',
-            'location' => 'nullable|string',
-            'profile_photo' => 'nullable|string',
-            'cover_photo' => 'nullable|string',
-            'company' => 'nullable|string',
+        $validator = Validator::make($request->all(), [
+            'fullName' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:admin,publisher,influencer',
+
+            // Publisher fields
+            'companyName' => 'nullable|string',
             'position' => 'nullable|string',
+
+            // Influencer fields
+            'socialHandle' => 'nullable|string',
+            'category' => 'nullable|string',
+            'platforms' => 'nullable|array',
+            'platforms.*' => 'nullable|url',
+
+            // Common fields
+            'location' => 'nullable|string',
+
+            // Photos
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
 
         DB::beginTransaction();
         try {
+            // === 1. Handle Profile & Cover Photos ===
+            $profilePhotoPath = $request->hasFile('profile_photo')
+                ? $request->file('profile_photo')->store('uploads/profile_photos', 'public')
+                : 'defaults/profile-photo.jpg';
+
+            $coverPhotoPath = $request->hasFile('cover_photo')
+                ? $request->file('cover_photo')->store('uploads/cover_photos', 'public')
+                : 'defaults/cover-photo.jpg';
+
+            // === 2. Create User ===
             $user = User::create([
-                'name' => $validated['name'],
+                'name' => $validated['fullName'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => $validated['role'],
                 'verified' => $validated['role'] === 'publisher' ? false : null,
                 'bio' => $validated['bio'] ?? null,
                 'location' => $validated['location'] ?? null,
-                'profile_photo' => $validated['profile_photo'] ?? null,
-                'cover_photo' => $validated['cover_photo'] ?? null,
-                'company' => $validated['role'] === 'publisher' ? $validated['company'] ?? null : null,
+                'profile_photo' => $profilePhotoPath,
+                'cover_photo' => $coverPhotoPath,
+                'company' => $validated['role'] === 'publisher' ? $validated['companyName'] ?? null : null,
                 'position' => $validated['role'] === 'publisher' ? $validated['position'] ?? null : null,
+                'social_handle' => $validated['role'] === 'influencer' ? $validated['socialHandle'] ?? null : null,
+                'category' => $validated['role'] === 'influencer' ? $validated['category'] ?? null : null,
             ]);
 
+            // === 3. Save Social Links if Influencer ===
+            if ($validated['role'] === 'influencer' && isset($validated['platforms'])) {
+                foreach ($validated['platforms'] as $platform => $url) {
+                    if (!empty($url)) {
+                        SocialLink::create([
+                            'influencer_id' => $user->id,
+                            'platform' => $platform,
+                            'url' => $url,
+                        ]);
+                    }
+                }
+            }
+
             DB::commit();
-            return response()->json(['message' => 'User created', 'user' => $user], 201);
+
+            return response()->json([
+                'message' => 'User created successfully',
+                'user' => $user->load('socialLinks'),
+            ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('User creation failed: ' . $e->getMessage());
-            return response()->json(['error' => 'User creation failed'], 500);
+            return response()->json(['error' => 'Failed to create user'], 500);
         }
     }
+
+
 
     /**
      * @OA\Put(
@@ -176,7 +226,7 @@ class UserController extends Controller
             return response()->json(['error' => 'User not found'], 404);
         }
 
-        // Restrict update to the user themself or admin
+        // Restrict update to self or admin
         if (auth()->id() !== $user->id && auth()->user()->role !== 'admin') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
@@ -185,22 +235,34 @@ class UserController extends Controller
             'name' => 'sometimes|string|max:255',
             'bio' => 'nullable|string',
             'location' => 'nullable|string',
-            'profile_photo' => 'nullable|string',
-            'cover_photo' => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'cover_photo' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:4096',
             'company' => 'nullable|string',
             'position' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
         try {
+            // Update profile photo if new file uploaded
+            if ($request->hasFile('profile_photo')) {
+                // Delete old file if not default
+                if ($user->profile_photo && $user->profile_photo !== 'defaults/person-icon.png') {
+                    Storage::disk('public')->delete($user->profile_photo);
+                }
+                $user->profile_photo = $request->file('profile_photo')->store('uploads/profile_photos', 'public');
+            }
+
+            // Update cover photo if new file uploaded
+            if ($request->hasFile('cover_photo')) {
+                if ($user->cover_photo) {
+                    Storage::disk('public')->delete($user->cover_photo);
+                }
+                $user->cover_photo = $request->file('cover_photo')->store('uploads/cover_photos', 'public');
+            }
+
+            // Update other fields
             $user->update($request->only([
-                'name',
-                'bio',
-                'location',
-                'profile_photo',
-                'cover_photo',
-                'company',
-                'position'
+                'name', 'bio', 'location', 'company', 'position'
             ]));
 
             DB::commit();
@@ -211,6 +273,7 @@ class UserController extends Controller
             return response()->json(['error' => 'Update failed'], 500);
         }
     }
+
 
     /**
      * @OA\Delete(
@@ -397,7 +460,7 @@ class UserController extends Controller
 
         DB::beginTransaction();
         try {
-            // Validate user data
+            // ✅ Validate user input
             $validated = $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|unique:users,email,' . $user->id,
@@ -405,8 +468,10 @@ class UserController extends Controller
                 'location' => 'nullable|string|max:255',
                 'company' => 'nullable|string|max:255',
                 'position' => 'nullable|string|max:255',
-                'profile_photo' => 'nullable|string',
-                'cover_photo' => 'nullable|string',
+
+                // ✅ FIX: Handle profile & cover images as FILES, not strings
+                'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+                'cover_photo'   => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
 
                 'social_links' => 'nullable|array',
                 'social_links.*.platform' => 'required_with:social_links|string|max:255',
@@ -421,12 +486,22 @@ class UserController extends Controller
                 'portfolio_items.*.media_items.*.file_path' => 'required_with:portfolio_items.*.media_items|string'
             ]);
 
-            // Update basic profile info
-            $user->update($request->only([
-                'name', 'email', 'bio', 'location', 'company', 'position', 'profile_photo', 'cover_photo'
-            ]));
+            // ✅ Handle profile photo upload
+            if ($request->hasFile('profile_photo')) {
+                $profilePath = $request->file('profile_photo')->store('profile_photos', 'public');
+                $validated['profile_photo'] = $profilePath;
+            }
 
-            // Update or create social links
+            // ✅ Handle cover photo upload
+            if ($request->hasFile('cover_photo')) {
+                $coverPath = $request->file('cover_photo')->store('cover_photos', 'public');
+                $validated['cover_photo'] = $coverPath;
+            }
+
+            // ✅ Update basic profile info
+            $user->update($validated);
+
+            // ✅ Update or create social links
             if ($request->has('social_links')) {
                 foreach ($request->social_links as $link) {
                     SocialLink::updateOrCreate(
@@ -441,7 +516,7 @@ class UserController extends Controller
                 }
             }
 
-            // Update or create portfolio items and media items
+            // ✅ Update or create portfolio items and media items
             if ($request->has('portfolio_items')) {
                 foreach ($request->portfolio_items as $itemData) {
                     $portfolioItem = PortfolioItem::updateOrCreate(
@@ -474,7 +549,7 @@ class UserController extends Controller
 
             DB::commit();
 
-            // Load all updated relations
+            // ✅ Load all updated relations
             $user->load(['socialLinks', 'portfolioItems.mediaItems']);
 
             return response()->json([
@@ -492,7 +567,6 @@ class UserController extends Controller
             ], 500);
         }
     }
-
 
 
 
