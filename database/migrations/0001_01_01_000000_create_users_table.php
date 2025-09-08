@@ -17,14 +17,23 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['publisher', 'influencer']);
-            $table->boolean('verified')->default(false); // Only for publishers
+            $table->enum('role', ['admin', 'publisher', 'influencer']);
+            $table->boolean('verified')->default(false)->nullable();
+
+            // Common fields
             $table->text('bio')->nullable();
             $table->string('location')->nullable();
-            $table->string('company')->nullable(); // Only for publishers
-            $table->string('position')->nullable(); // Only for publishers
             $table->string('profile_photo')->nullable();
             $table->string('cover_photo')->nullable();
+
+            // Publisher fields
+            $table->string('company')->nullable();
+            $table->string('position')->nullable();
+
+            // Influencer-specific fields
+            $table->string('social_handle')->nullable();
+            $table->string('category')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

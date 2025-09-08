@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\SocialLink;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -43,7 +44,24 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,publisher,influencer'
+            'role' => 'required|in:admin,publisher,influencer',
+
+            // Publisher fields
+            'companyName' => 'nullable|string',
+            'position' => 'nullable|string',
+
+            // Influencer fields
+            'socialHandle' => 'nullable|string',
+            'category' => 'nullable|string',
+            'platforms' => 'nullable|array',          // associative array: platform => url
+            'platforms.*' => 'nullable|url',
+
+            // Common fields
+            'location' => 'nullable|string',
+
+            // Photos
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cover_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         if ($validator->fails()) {
@@ -54,25 +72,61 @@ class AuthController extends Controller
 
         DB::beginTransaction();
         try {
+            // Handle profile & cover photos
+            $profilePhotoPath = $request->hasFile('profile_photo')
+                ? $request->file('profile_photo')->store('uploads/profile_photos', 'public')
+                : 'defaults/profile-photo.jpg';
+
+            $coverPhotoPath = $request->hasFile('cover_photo')
+                ? $request->file('cover_photo')->store('uploads/cover_photos', 'public')
+                : 'defaults/cover-photo.jpg';
+
+            // Create user
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role' => $validated['role']
+                'role' => $validated['role'],
+                'verified' => $validated['role'] === 'publisher' ? false : null,
+                'bio' => $validated['bio'] ?? null,
+                'location' => $validated['location'] ?? null,
+                'profile_photo' => $profilePhotoPath,
+                'cover_photo' => $coverPhotoPath,
+                'company' => $validated['role'] === 'publisher' ? $validated['companyName'] ?? null : null,
+                'position' => $validated['role'] === 'publisher' ? $validated['position'] ?? null : null,
+                'social_handle' => $validated['role'] === 'influencer' ? $validated['socialHandle'] ?? null : null,
+                'category' => $validated['role'] === 'influencer' ? $validated['category'] ?? null : null,
             ]);
 
+            // Save social links if influencer
+            if ($validated['role'] === 'influencer' && isset($validated['social_links'])) {
+                foreach ($validated['social_links'] as $link) {
+                    if (!empty($link['url'])) {
+                        SocialLink::create([
+                            'influencer_id' => $user->id,
+                            'platform' => $link['platform'],
+                            'url' => $link['url'],
+                        ]);
+                    }
+                }
+            }
+
+
+            // Generate token
             $token = $user->createToken('auth_token')->plainTextToken;
+
             DB::commit();
 
             return response()->json([
                 'message' => 'User registered successfully',
                 'token' => $token,
-                'user' => $user
+                'user' => $user->load('socialLinks'),
             ], 201);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Register failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Registration failed'], 500);
+            Log::error('Register failed: ' . $e->getMessage());
+            return response()->json(['error' => $e->getMessage()], 500); // show actual error for debugging
         }
     }
 

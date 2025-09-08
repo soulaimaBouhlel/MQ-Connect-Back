@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * @OA\Schema(
@@ -54,8 +55,11 @@ class User extends Authenticatable
         'cover_photo',
         'company',
         'position',
+        'social_handle',
+        'category',
     ];
 
+    protected $appends = ['profile_photo_url', 'cover_photo_url'];
 
     protected $hidden = [
         'password',
@@ -136,4 +140,18 @@ class User extends Authenticatable
             'followed_id'
         );
     }
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo
+            ? Storage::disk('public')->url($this->profile_photo)
+            : null;
+    }
+
+    public function getCoverPhotoUrlAttribute(): ?string
+    {
+        return $this->cover_photo
+            ? Storage::disk('public')->url($this->cover_photo)
+            : null;
+    }
+
 }

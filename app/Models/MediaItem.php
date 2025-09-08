@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
+
 /**
  * @OA\Schema(
  *     schema="MediaItem",
@@ -28,9 +30,16 @@ class MediaItem extends Model
         'portfolio_item_id',
         'file_path',
     ];
+    protected $appends = ['url'];
 
     public function portfolioItem(): BelongsTo
     {
         return $this->belongsTo(PortfolioItem::class);
+    }
+    public function getUrlAttribute(): ?string
+    {
+        return $this->file_path
+            ? Storage::disk('public')->url($this->file_path)
+            : null;
     }
 }
