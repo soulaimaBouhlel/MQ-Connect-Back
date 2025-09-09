@@ -53,8 +53,7 @@ class AuthController extends Controller
             // Influencer fields
             'socialHandle' => 'nullable|string',
             'category' => 'nullable|string',
-            'platforms' => 'nullable|array',          // associative array: platform => url
-            'platforms.*' => 'nullable|url',
+            'social_links' => 'nullable|array',          // associative array: platform => url
 
             // Common fields
             'location' => 'nullable|string',
