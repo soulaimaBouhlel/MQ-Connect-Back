@@ -122,8 +122,7 @@ class UserController extends Controller
             // Influencer fields
             'socialHandle' => 'nullable|string',
             'category' => 'nullable|string',
-            'platforms' => 'nullable|array',
-            'platforms.*' => 'nullable|url',
+            'social_links' => 'nullable|array',
 
             // Common fields
             'location' => 'nullable|string',
@@ -168,8 +167,8 @@ class UserController extends Controller
             ]);
 
             // === 3. Save Social Links if Influencer ===
-            if ($validated['role'] === 'influencer' && isset($validated['platforms'])) {
-                foreach ($validated['platforms'] as $platform => $url) {
+            if ($validated['role'] === 'influencer' && isset($validated['social_links'])) {
+                foreach ($validated['social_links'] as $platform => $url) {
                     if (!empty($url)) {
                         SocialLink::create([
                             'influencer_id' => $user->id,
@@ -464,19 +463,35 @@ class UserController extends Controller
             $validated = $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'email' => 'sometimes|email|unique:users,email,' . $user->id,
-                'bio' => 'nullable|string|max:500',
-                'location' => 'nullable|string|max:255',
-                'company' => 'nullable|string|max:255',
+                'password' => 'nullable|string|min:8|confirmed',
+
+                // Role stays fixed but we allow resending it for reference
+                'role' => 'sometimes|in:admin,publisher,influencer',
+
+                // Publisher fields
+                'companyName' => 'nullable|string|max:255',
                 'position' => 'nullable|string|max:255',
 
-                // ✅ FIX: Handle profile & cover images as FILES, not strings
+                // Influencer fields
+                'socialHandle' => 'nullable|string|max:255',
+                'category' => 'nullable|string|max:255',
+                'platforms' => 'nullable|array',
+                'platforms.*' => 'nullable|url',
+
+                // Common fields
+                'bio' => 'nullable|string|max:500',
+                'location' => 'nullable|string|max:255',
+
+                // Photos
                 'profile_photo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
                 'cover_photo'   => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
 
+                // Social Links
                 'social_links' => 'nullable|array',
                 'social_links.*.platform' => 'required_with:social_links|string|max:255',
                 'social_links.*.url' => 'required_with:social_links|url|max:500',
 
+                // Portfolio items
                 'portfolio_items' => 'nullable|array',
                 'portfolio_items.*.id' => 'nullable|exists:portfolio_items,id',
                 'portfolio_items.*.type' => 'required_with:portfolio_items|in:media,collaboration',
