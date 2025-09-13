@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\SocialLinkController;
@@ -38,6 +39,15 @@ Route::middleware([
     Route::post('/media', [MediaItemController::class, 'store']);
     Route::put('/media/{id}', [MediaItemController::class, 'update']);
     Route::delete('/media/{id}', [MediaItemController::class, 'destroy']);
+    /*
+    |--------------------------------------------------------------------------
+    | Follows APIs
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/users/{id}/follow', [FollowController::class, 'toggleFollow']);
+    Route::get('/followers', [FollowController::class, 'followers']);
+    Route::get('/followings', [FollowController::class, 'followings']);
+
     /*
     |--------------------------------------------------------------------------
     | Messaging APIs
