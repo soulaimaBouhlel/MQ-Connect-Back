@@ -125,7 +125,7 @@ class User extends Authenticatable
         return $this->belongsToMany(
             User::class,
             'follows',
-            'followed_id',
+            'following_id',
             'follower_id'
         );
     }
@@ -137,7 +137,7 @@ class User extends Authenticatable
             User::class,
             'follows',
             'follower_id',
-            'followed_id'
+            'following_id'
         );
     }
     public function getProfilePhotoUrlAttribute(): ?string
@@ -152,6 +152,29 @@ class User extends Authenticatable
         return $this->cover_photo
             ? Storage::disk('public')->url($this->cover_photo)
             : null;
+    }
+    public function follow(User $user): void
+    {
+        if ($this->id !== $user->id && !$this->isFollowing($user)) {
+            $this->followings()->attach($user->id);
+        }
+    }
+
+    public function unfollow(User $user): void
+    {
+        if ($this->id !== $user->id && $this->isFollowing($user)) {
+            $this->followings()->detach($user->id);
+        }
+    }
+
+    public function isFollowing(User $user): bool
+    {
+        return $this->followings()->where('following_id', $user->id)->exists();
+    }
+
+    public function isFollowedBy(User $user): bool
+    {
+        return $this->followers()->where('follower_id', $user->id)->exists();
     }
 
 }
