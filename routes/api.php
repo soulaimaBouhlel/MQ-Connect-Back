@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\BoostController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\OfferController;
@@ -77,6 +78,7 @@ Route::middleware([
     | Offers Routes (Publisher Only)
     |--------------------------------------------------------------------------
     */
+
     Route::middleware('role:publisher')->group(function () {
         Route::post('/offers', [OfferController::class, 'store']);
         Route::put('/offers/{id}', [OfferController::class, 'update']);
@@ -93,6 +95,7 @@ Route::middleware([
         Route::put('/applications/{id}', [ApplicationController::class, 'update']);
         Route::delete('/applications/{id}', [ApplicationController::class, 'destroy']);
         Route::apiResource('social-links', SocialLinkController::class);
+        Route::apiResource('boosts', BoostController::class)->except(['show']);
 
     });
     /*
